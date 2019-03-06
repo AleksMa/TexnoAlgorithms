@@ -19,7 +19,7 @@ class Vector {
 
   T at(size_t index) const;
   T &operator[](size_t index);
-  T operator[](size_t index) const;
+  const T& operator[](size_t index) const;
 
   size_t size() const;
   size_t capacity() const;
@@ -47,8 +47,13 @@ T Vector<T>::at(size_t index) const {
   return buffer[index];
 }
 
+
 template<class T>
-T Vector<T>::operator[](size_t index) const { return at(index); }
+const T& Vector<T>::operator[](size_t index) const {
+  assert(index >= 0 && index < len && buffer != 0);
+  return buffer[index];
+}
+
 
 template<class T>
 T &Vector<T>::operator[](size_t index) {
@@ -88,9 +93,9 @@ class Stack {
  public:
   Stack();
 
-  void push(T &data);
+  void push(const T &data);
   void pop();                       // Сохраняя традиции stl - pop не возвращает значение (только убирает с вершины)
-  T top() const;                    // top не убирает значение с вершины  (только возвращает)
+  const T& top() const;                    // top не убирает значение с вершины  (только возвращает)
 
   size_t size() const;
   bool empty() const;
@@ -105,7 +110,7 @@ template<class T>
 Stack<T>::Stack():stack_top(0) {}
 
 template<class T>
-void Stack<T>::push(T &data) {
+void Stack<T>::push(const T &data) {
   if (stack_top
       == V.size()) {      // Если массив переполнен или следующее значение не инициализровано - делегируем добавление элемента вектору
     V.push_back(data);
@@ -122,7 +127,7 @@ void Stack<T>::pop() {
 }
 
 template<class T>
-T Stack<T>::top() const {
+const T& Stack<T>::top() const {
   assert(!empty());
   return V[stack_top - 1];
 };
@@ -144,11 +149,10 @@ bool Stack<T>::empty() const {
 template<class T>
 class Queue {
  public:
-  Queue();
 
   void enqueue(T &data);                // Положить элемент в очередь
   T dequeue();                          // Взять элемент из очереди
-  const T &top() const;                 // Посмотреть на первый элемент очереди
+  const T &top();                       // Посмотреть на первый элемент очереди
 
   size_t size() const;
   bool empty() const;
@@ -159,9 +163,6 @@ class Queue {
 };
 
 template<class T>
-Queue<T>::Queue() {}
-
-template<class T>
 void Queue<T>::enqueue(T &data) {
   S1.push(data);                                // Приходящие элементы кладем в первый стек
 }
@@ -169,20 +170,13 @@ void Queue<T>::enqueue(T &data) {
 template<class T>
 T Queue<T>::dequeue() {                         // Берем элементы из второго стека - если он пуст, то перекидываем в него первый стек
   assert(!empty());
-  if (S2.empty()) {
-    while (!S1.empty()) {
-      T temp = S1.top();
-      S2.push(temp);
-      S1.pop();
-    }
-  }
-  T temp = S2.top();
+  T temp = top();
   S2.pop();
   return temp;
 }
 
 template<class T>
-const T &Queue<T>::top() const {
+const T &Queue<T>::top() {
   assert(!empty());
   if (S2.empty()) {
     while (!S1.empty()) {

@@ -101,7 +101,7 @@ int main() {
     }
   }
 
-  cout << (result ? "YES" : "NO");z
+  cout << (result ? "YES" : "NO");
 
   return 0;
 }

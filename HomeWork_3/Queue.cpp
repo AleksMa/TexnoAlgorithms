@@ -6,6 +6,9 @@
  * Обрабатывать команды push back и pop front.
  */
 
+
+
+//Сразу реализуем свой динамический массив (вектор) для использования в стеке
 template<class T>
 class Vector {
  public:
@@ -75,15 +78,19 @@ void Vector<T>::push_back(const T &data) {
 template<class T>
 size_t Vector<T>::capacity() const { return buffer_size; };
 
+
+// Реализация стека через динамический массив
+// Делегирует часть функций вектору
+
+
 template<class T>
 class Stack {
  public:
   Stack();
-  //~Stack();
 
   void push(T &data);
-  void pop();                       // Сохраняя традиции stl - pop не возвращает значение
-  const T &top() const;             // top не убирает значение с вершины
+  void pop();                       // Сохраняя традиции stl - pop не возвращает значение (только убирает с вершины)
+  T top() const;                    // top не убирает значение с вершины  (только возвращает)
 
   size_t size() const;
   bool empty() const;
@@ -99,11 +106,12 @@ Stack<T>::Stack():stack_top(0) {}
 
 template<class T>
 void Stack<T>::push(T &data) {
-  if(stack_top == V.capacity()){
+  if (stack_top
+      == V.size()) {      // Если массив переполнен или следующее значение не инициализровано - делегируем добавление элемента вектору
     V.push_back(data);
+  } else {
+    V[stack_top] = data;            // В противном случае имеем право присвоить значение
   }
-  else
-    V[stack_top] = data;
   stack_top++;
 }
 
@@ -114,10 +122,10 @@ void Stack<T>::pop() {
 }
 
 template<class T>
-const T& Stack<T>::top() const {
+T Stack<T>::top() const {
   assert(!empty());
   return V[stack_top - 1];
-  };
+};
 
 template<class T>
 size_t Stack<T>::size() const {
@@ -130,41 +138,39 @@ bool Stack<T>::empty() const {
 }
 
 
-
-
+// Реализация очереди через два стека
+// Делегирует почти все функции стеку
 
 template<class T>
 class Queue {
  public:
   Queue();
-  //~Stack();
 
-  void enqueue(T &data);
-  T dequeue();
-  const T &top() const;
+  void enqueue(T &data);                // Положить элемент в очередь
+  T dequeue();                          // Взять элемент из очереди
+  const T &top() const;                 // Посмотреть на первый элемент очереди
 
   size_t size() const;
   bool empty() const;
 
  private:
   Stack<T> S1, S2;
-  size_t head, tail, count;
 
 };
 
 template<class T>
-Queue<T>::Queue(){}
+Queue<T>::Queue() {}
 
 template<class T>
 void Queue<T>::enqueue(T &data) {
-  S1.push(data);
+  S1.push(data);                                // Приходящие элементы кладем в первый стек
 }
 
 template<class T>
-T Queue<T>::dequeue() {
+T Queue<T>::dequeue() {                         // Берем элементы из второго стека - если он пуст, то перекидываем в него первый стек
   assert(!empty());
-  if(S2.empty()){
-    while(!S1.empty()){
+  if (S2.empty()) {
+    while (!S1.empty()) {
       T temp = S1.top();
       S2.push(temp);
       S1.pop();
@@ -176,10 +182,10 @@ T Queue<T>::dequeue() {
 }
 
 template<class T>
-const T& Queue<T>::top() const {
+const T &Queue<T>::top() const {
   assert(!empty());
-  if(S2.empty()){
-    while(!S1.empty()){
+  if (S2.empty()) {
+    while (!S1.empty()) {
       S2.push(S1.top());
       S1.pop();
     }
@@ -197,45 +203,29 @@ bool Queue<T>::empty() const {
   return S1.empty() && S2.empty();
 }
 
-
-
-
 int main(int argc, char **argv) {
 
-  /*
-  Queue <int> Q;
+  Queue<int> Q;
   bool result = true;
   int n = 0;
   std::cin >> n;
-  for(int i = 0; i < n; i++){
+  for (int i = 0; i < n; i++) {
     int command = 0;
     int data = 0;
     std::cin >> command >> data;
-    switch( command ){
+    switch (command) {
       case 2:
-        if(Q.empty()){
+        if (Q.empty()) {
           result = (result && data == -1);
         } else {
           result = (result && Q.dequeue() == data);
         }
         break;
-      case 3:
-        Q.enqueue(data);
+      case 3:Q.enqueue(data);
         break;
     }
   }
 
   std::cout << (result ? "YES" : "NO");
-  */
-
-  Stack<int> S;
-  for(int i = 0; i < 10; i ++){
-    S.push(i);
-  }
-
-  for(int i = 0; i < 10; i ++){
-    std::cout << S.top();
-    S.pop();
-  }
 
 }

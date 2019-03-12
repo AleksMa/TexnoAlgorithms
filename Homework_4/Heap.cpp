@@ -1,6 +1,5 @@
 #include "bits/stdc++.h"
 
-
 /*
  *
  * Вовочка ест фрукты из бабушкиной корзины.
@@ -23,7 +22,7 @@ class Vector {
 
   T at(size_t index) const;
   T &operator[](size_t index);
-  const T& operator[](size_t index) const;
+  const T &operator[](size_t index) const;
 
   size_t size() const;
   size_t capacity() const;
@@ -51,13 +50,11 @@ T Vector<T>::at(size_t index) const {
   return buffer[index];
 }
 
-
 template<class T>
-const T& Vector<T>::operator[](size_t index) const {
+const T &Vector<T>::operator[](size_t index) const {
   assert(index >= 0 && index < len && buffer != 0);
   return buffer[index];
 }
-
 
 template<class T>
 T &Vector<T>::operator[](size_t index) {
@@ -82,4 +79,52 @@ void Vector<T>::push_back(const T &data) {
     grow();
   assert(len < buffer_size && buffer != 0);
   buffer[len++] = data;
+}
+
+template<class T>
+class Heap {
+ public:
+  Heap();
+  Heap(const T *arr, size_t n);
+  ~Heap();
+
+  void Insert(int element);
+
+  int ExtractMax();
+
+  int PeekMax() const;
+
+ private:
+  Vector<T> buff;
+
+  void buildHeap();
+  void siftDown(int i);
+  void siftUp(int i);
+
+};
+
+template<class T>
+void Heap<T>::siftDown(int i) {
+  int left = 2 * i + 1;
+  int right = 2 * i + 2;
+// Ищем большего сына, если такой есть.
+  int largest = i;
+  if (left < buff.size() && buff[left] > buff[i])
+    largest = left;
+  if (right < buff.size() && buff[right] > buff[largest])
+    largest = right;
+// Если больший сын есть, то проталкиваем корень в него.
+  if (largest != i) {
+    std::swap(buff[i], buff[largest]);
+    siftDown(largest);
+  }
+}
+
+// Построение кучи.
+template<class T>
+void Heap<T>::buildHeap()
+{
+  for( int i = buff.size() / 2 – 1; i >= 0; --i ) {
+    siftDown( i );
+  }
 }

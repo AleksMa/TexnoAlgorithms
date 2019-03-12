@@ -103,45 +103,130 @@ void Vector<T>::erase_back() {
 }
 
 template<class T>
-class Heap {
+class Stack {
  public:
-  Heap();
-  Heap(Vector<T> V, size_t n);
+  Stack();
 
-  void Insert(T element);
+  void push(const T &data);
+  void pop();                       // Сохраняя традиции stl - pop не возвращает значение (только убирает с вершины)
+  const T &top() const;                    // top не убирает значение с вершины  (только возвращает)
 
-  T ExtractMax();
-
-  const T &PeekMax() const;
+  size_t size() const;
+  bool empty() const;
 
  private:
-  Vector<T> buff;
-
-  void buildHeap();
-  void siftDown(int i);
-  void siftUp(int i);
+  Vector<T> V;
+  size_t stack_top;
 
 };
 
 template<class T>
-const T &Heap<T>::PeekMax() const {
-  return buff[0];
+Stack<T>::Stack():stack_top(0) {}
+
+template<class T>
+void Stack<T>::push(const T &data) {
+  if (stack_top
+      == V.size()) {      // Если массив переполнен или следующее значение не инициализровано - делегируем добавление элемента вектору
+    V.push_back(data);
+  } else {
+    V[stack_top] = data;            // В противном случае имеем право присвоить значение
+  }
+  stack_top++;
 }
 
 template<class T>
-Heap<T>::Heap() {}
+void Stack<T>::pop() {
+  assert(!empty());
+  stack_top--;
+}
 
 template<class T>
-Heap<T>::Heap(Vector<T> V, size_t n) {
+const T &Stack<T>::top() const {
+  assert(!empty());
+  return V[stack_top - 1];
+};
+
+template<class T>
+size_t Stack<T>::size() const {
+  return stack_top;
+}
+
+template<class T>
+bool Stack<T>::empty() const {
+  return stack_top == 0;
+}
+
+template<class T>
+class PriorityQueue {
+ public:
+  PriorityQueue();
+  PriorityQueue(Vector<T> V, size_t n);
+
+  void insert(T element);
+
+  T extract_max();
+  const T &peek_max();
+
+  size_t size();
+  bool empty();
+
+ private:
+  Vector<T> buff;
+
+  void build_heap();
+  void sift_down(int i);
+  void sift_up(int i);
+
+};
+
+template<class T>
+PriorityQueue<T>::PriorityQueue() {}
+
+template<class T>
+PriorityQueue<T>::PriorityQueue(Vector<T> V, size_t n) {
   assert(V.size() == n);
   for (size_t i = 0; i < n; i++) {
     buff.push_back(V[i]);
   }
-  buildHeap();
+  build_heap();
 }
 
 template<class T>
-void Heap<T>::siftDown(int i) {
+void PriorityQueue<T>::insert(T element) {
+  buff.push_back(element);
+  sift_up(buff.size() - 1);
+}
+
+template<class T>
+T PriorityQueue<T>::extract_max() {
+  assert(!buff.empty());
+  int result = buff[0];
+  buff[0] = buff.last();
+  buff.erase_back();
+  if (!buff.empty()) {
+    sift_down(0);
+  }
+  return result;
+}
+
+template<class T>
+const T &PriorityQueue<T>::peek_max() {
+  assert(!buff.empty());
+  return buff[0];
+}
+
+template<class T>
+bool PriorityQueue<T>::empty() {
+  return buff.empty();
+}
+
+template<class T>
+size_t PriorityQueue<T>::size() {
+  return buff.size();
+}
+
+template<class T>
+void PriorityQueue<T>::sift_down(int i) {
   int left = 2 * i + 1;
   int right = 2 * i + 2;
   int largest = i;
@@ -151,19 +236,12 @@ void Heap<T>::siftDown(int i) {
     largest = right;
   if (largest != i) {
     std::swap(buff[i], buff[largest]);
-    siftDown(largest);
+    sift_down(largest);
   }
 }
 
 template<class T>
-void Heap<T>::buildHeap() {
-  for (int i = buff.size() / 2 - 1; i >= 0; --i) {
-    siftDown(i);
-  }
-}
-
-template<class T>
-void Heap<T>::siftUp(int index) {
+void PriorityQueue<T>::sift_up(int index) {
   while (index > 0) {
     int parent = (index - 1) / 2;
     if (buff[index] <= buff[parent])
@@ -174,39 +252,49 @@ void Heap<T>::siftUp(int index) {
 }
 
 template<class T>
-void Heap<T>::Insert(T element) {
-  buff.push_back(element);
-  siftUp(buff.size() - 1);
-}
-
-template<class T>
-T Heap<T>::ExtractMax() {
-  assert(!buff.empty());
-  int result = buff[0];
-  buff[0] = buff.last();
-  buff.erase_back();
-  if (!buff.empty()) {
-    siftDown(0);
+void PriorityQueue<T>::build_heap() {
+  for (int i = (int) buff.size() / 2 - 1; i >= 0; --i) {
+    sift_down(i);
   }
-  return result;
 }
 
 int main(int argc, char **argv) {
 
+  int n = 0, K = 0, a = 0, count = 0, acc = 0, curr = 0;
   Vector<int> V;
-  int k = 5;
+  PriorityQueue<int> Q(V, n);
+  Stack<int> S;
+  std::cin >> n;
+  for (int i = 0; i < n; i++) {
+    std::cin >> a;
+    Q.insert(a);
+  }
+  std::cin >> K;
 
-  V.push_back(5);
 
-  V.push_back(228);
+  while (!Q.empty()) {
+    while (!Q.empty()) {
+      curr = Q.peek_max();
+      if (curr + acc > K)
+        break;
+      curr = Q.extract_max();
+      acc += curr;
+      curr /= 2;
+      if (curr)
+        S.push(curr);
+    }
 
-  V.push_back(8);
+    while (!S.empty()) {
+      curr = S.top();
+      S.pop();
 
-  V.push_back(5);
+      Q.insert(curr);
+    }
 
-  Heap<int> Q(V, k - 1);
-
-  
+    acc = 0;
+    count++;
+  }
+  std::cout << count;
 
 }
 

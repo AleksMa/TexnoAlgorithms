@@ -19,13 +19,17 @@ class Vector {
   ~Vector();
 
   void push_back(const T &data);
+  void erase_back();
 
   T at(size_t index) const;
   T &operator[](size_t index);
+  T &last();
   const T &operator[](size_t index) const;
 
   size_t size() const;
   size_t capacity() const;
+
+  bool empty();
 
  private:
   T *buffer;
@@ -34,6 +38,17 @@ class Vector {
 
   void grow();
 };
+
+template<class T>
+bool Vector<T>::empty() {
+  return len == 0;
+}
+
+template<class T>
+T &Vector<T>::last() {
+  assert(buffer != 0 && len > 0);
+  return buffer[len - 1];
+}
 
 template<class T>
 Vector<T>::Vector():buffer(0), buffer_size(0), len(0) {}
@@ -82,17 +97,22 @@ void Vector<T>::push_back(const T &data) {
 }
 
 template<class T>
+void Vector<T>::erase_back() {
+  assert(len > 0 && buffer != 0);
+  len--;
+}
+
+template<class T>
 class Heap {
  public:
   Heap();
-  Heap(const T *arr, size_t n);
-  ~Heap();
+  Heap(Vector<T> V, size_t n);
 
-  void Insert(int element);
+  void Insert(T element);
 
-  int ExtractMax();
+  T ExtractMax();
 
-  int PeekMax() const;
+  const T &PeekMax() const;
 
  private:
   Vector<T> buff;
@@ -104,27 +124,94 @@ class Heap {
 };
 
 template<class T>
+const T &Heap<T>::PeekMax() const {
+  return buff[0];
+}
+
+template<class T>
+Heap<T>::Heap() {}
+
+template<class T>
+Heap<T>::Heap(Vector<T> V, size_t n) {
+  assert(V.size() == n);
+  for (size_t i = 0; i < n; i++) {
+    buff.push_back(V[i]);
+  }
+  buildHeap();
+}
+
+template<class T>
 void Heap<T>::siftDown(int i) {
   int left = 2 * i + 1;
   int right = 2 * i + 2;
-// Ищем большего сына, если такой есть.
   int largest = i;
   if (left < buff.size() && buff[left] > buff[i])
     largest = left;
   if (right < buff.size() && buff[right] > buff[largest])
     largest = right;
-// Если больший сын есть, то проталкиваем корень в него.
   if (largest != i) {
     std::swap(buff[i], buff[largest]);
     siftDown(largest);
   }
 }
 
-// Построение кучи.
 template<class T>
-void Heap<T>::buildHeap()
-{
-  for( int i = buff.size() / 2 – 1; i >= 0; --i ) {
-    siftDown( i );
+void Heap<T>::buildHeap() {
+  for (int i = buff.size() / 2 - 1; i >= 0; --i) {
+    siftDown(i);
   }
 }
+
+template<class T>
+void Heap<T>::siftUp(int index) {
+  while (index > 0) {
+    int parent = (index - 1) / 2;
+    if (buff[index] <= buff[parent])
+      return;
+    std::swap(buff[index], buff[parent]);
+    index = parent;
+  }
+}
+
+template<class T>
+void Heap<T>::Insert(T element) {
+  buff.push_back(element);
+  siftUp(buff.size() - 1);
+}
+
+template<class T>
+T Heap<T>::ExtractMax() {
+  assert(!buff.empty());
+  int result = buff[0];
+  buff[0] = buff.last();
+  buff.erase_back();
+  if (!buff.empty()) {
+    siftDown(0);
+  }
+  return result;
+}
+
+int main(int argc, char **argv) {
+
+  Vector<int> V;
+  int k = 5;
+
+  V.push_back(5);
+
+  V.push_back(228);
+
+  V.push_back(8);
+
+  V.push_back(5);
+
+  Heap<int> Q(V, k - 1);
+
+  
+
+}
+
+
+
+
+
+

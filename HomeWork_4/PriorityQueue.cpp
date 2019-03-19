@@ -156,13 +156,15 @@ bool Stack<T>::empty() const {
   return stack_top == 0;
 }
 
+
+
 template<class T>
 class PriorityQueue {
  public:
   PriorityQueue();
-  PriorityQueue(Vector<T> V, size_t n);
+  PriorityQueue(const T* V, size_t n);
 
-  void insert(T element);
+  void insert(const T& element);
 
   T extract_max();
   const T &peek_max();
@@ -183,8 +185,8 @@ template<class T>
 PriorityQueue<T>::PriorityQueue() {}
 
 template<class T>
-PriorityQueue<T>::PriorityQueue(Vector<T> V, size_t n) {
-  assert(V.size() == n);
+PriorityQueue<T>::PriorityQueue(const T* V, size_t n) {
+  assert(V);
   for (size_t i = 0; i < n; i++) {
     buff.push_back(V[i]);
   }
@@ -192,7 +194,7 @@ PriorityQueue<T>::PriorityQueue(Vector<T> V, size_t n) {
 }
 
 template<class T>
-void PriorityQueue<T>::insert(T element) {
+void PriorityQueue<T>::insert(const T& element) {
   buff.push_back(element);
   sift_up(buff.size() - 1);
 }
@@ -258,19 +260,11 @@ void PriorityQueue<T>::build_heap() {
   }
 }
 
-int main(int argc, char **argv) {
 
-  int n = 0, K = 0, a = 0, count = 0, acc = 0, curr = 0;
-  Vector<int> V;
-  PriorityQueue<int> Q(V, n);
+int eater(int *source, int n, int K){
+  int count = 0, acc = 0, curr = 0;
+  PriorityQueue<int> Q(source, n);
   Stack<int> S;
-  std::cin >> n;
-  for (int i = 0; i < n; i++) {
-    std::cin >> a;
-    Q.insert(a);
-  }
-  std::cin >> K;
-
 
   while (!Q.empty()) {
     while (!Q.empty()) {
@@ -294,7 +288,29 @@ int main(int argc, char **argv) {
     acc = 0;
     count++;
   }
-  std::cout << count;
+
+  return count;
+}
+
+
+int main(int argc, char **argv) {
+
+  int n = 0, K = 0, temp = 0;
+
+  std::cin >> n;
+
+  int *arr = new int[n];
+  for (int i = 0; i < n; i++) {
+    std::cin >> temp;
+    arr[i] = temp;
+  }
+
+  std::cin >> K;
+
+  std::cout << eater(arr, n, K);
+
+
+  delete[] arr;
 
 }
 

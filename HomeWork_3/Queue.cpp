@@ -8,7 +8,8 @@
 
 
 
-//Сразу реализуем свой динамический массив (вектор) для использования в стеке
+// Реализуем свой динамический массив (вектор) для использования в стеке
+
 template<class T>
 class Vector {
  public:
@@ -84,9 +85,10 @@ template<class T>
 size_t Vector<T>::capacity() const { return buffer_size; };
 
 
+// Начало стека =====================================
+
 // Реализация стека через динамический массив
 // Делегирует часть функций вектору
-
 
 template<class T>
 class Stack {
@@ -95,7 +97,7 @@ class Stack {
 
   void push(const T &data);
   void pop();                       // Сохраняя традиции stl - pop не возвращает значение (только убирает с вершины)
-  const T& top() const;                    // top не убирает значение с вершины  (только возвращает)
+  const T& top() const;             // top не убирает значение с вершины  (только возвращает)
 
   size_t size() const;
   bool empty() const;
@@ -142,6 +144,7 @@ bool Stack<T>::empty() const {
   return stack_top == 0;
 }
 
+// Начало очереди ================================
 
 // Реализация очереди через два стека
 // Делегирует почти все функции стеку
@@ -150,8 +153,9 @@ template<class T>
 class Queue {
  public:
 
-  void enqueue(T &data);                // Положить элемент в очередь
-  T dequeue();                          // Взять элемент из очереди
+  void enqueue(const T &data);                // Положить элемент в очередь
+  void dequeue();                          // Взять элемент из очереди
+
   const T &top();                       // Посмотреть на первый элемент очереди
 
   size_t size() const;
@@ -163,16 +167,16 @@ class Queue {
 };
 
 template<class T>
-void Queue<T>::enqueue(T &data) {
+void Queue<T>::enqueue(const T &data) {
   S1.push(data);                                // Приходящие элементы кладем в первый стек
 }
 
 template<class T>
-T Queue<T>::dequeue() {                         // Берем элементы из второго стека - если он пуст, то перекидываем в него первый стек
+void Queue<T>::dequeue() {                      // Берем элементы из второго стека - если он пуст, то перекидываем в него первый стек
   assert(!empty());
   T temp = top();
   S2.pop();
-  return temp;
+  //return temp;
 }
 
 template<class T>
@@ -197,6 +201,8 @@ bool Queue<T>::empty() const {
   return S1.empty() && S2.empty();
 }
 
+//   Конец очереди  ================================
+
 int main(int argc, char **argv) {
 
   Queue<int> Q;
@@ -212,10 +218,12 @@ int main(int argc, char **argv) {
         if (Q.empty()) {
           result = (result && data == -1);
         } else {
-          result = (result && Q.dequeue() == data);
+          result = (result && Q.top() == data);
+          Q.dequeue();
         }
         break;
-      case 3:Q.enqueue(data);
+      case 3:
+        Q.enqueue(data);
         break;
     }
   }

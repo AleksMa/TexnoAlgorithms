@@ -15,9 +15,6 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-
-
-
 template<class T>
 class Vector {
  public:
@@ -28,7 +25,7 @@ class Vector {
 
   T at(size_t index) const;
   T &operator[](size_t index);
-  const T& operator[](size_t index) const;
+  const T &operator[](size_t index) const;
 
   size_t size() const;
   size_t capacity() const;
@@ -56,13 +53,11 @@ T Vector<T>::at(size_t index) const {
   return buffer[index];
 }
 
-
 template<class T>
-const T& Vector<T>::operator[](size_t index) const {
+const T &Vector<T>::operator[](size_t index) const {
   assert(index >= 0 && index < len && buffer != 0);
   return buffer[index];
 }
-
 
 template<class T>
 T &Vector<T>::operator[](size_t index) {
@@ -89,67 +84,43 @@ void Vector<T>::push_back(const T &data) {
   buffer[len++] = data;
 }
 
-template<class T>
-size_t Vector<T>::capacity() const { return buffer_size; };
 
 
-
-
-
-template<class T>
-class Compare {
- public:
-  bool operator()(const T &l, const T &r) {
-    return l < r;
-  }
-};
 
 void radix_sort(string *A, int from, int to, int d) {
-  if(A[from].size() < d || from >= to - 1)
+  if (from >= to - 1)
     return;
-
-  //cout << d << ":\t" << from << "\t" << to << endl;
 
   int *cnt = new int[BASE];
 
-  for(int j = 0; j < BASE; j++){
+  for (int j = 0; j < BASE; j++) {
     cnt[j] = 0;
   }
 
-  for(int i = from; i < to; i++){
+  for (int i = from; i < to; i++) {
     int j = A[i][d];
     cnt[j]++;
   }
 
-
-  for(int j = 1; j < BASE; j++){
+  for (int j = 1; j < BASE; j++) {
     cnt[j] += cnt[j - 1];
   }
 
   string *temp = new string[to - from];
 
-
-  for(int i = to - 1; i >= from; i--){
+  for (int i = to - 1; i >= from; i--) {
     int j = A[i][d];
     temp[--cnt[j]] = A[i];
   }
 
-  //memcpy(A + from, temp, (to - from) * sizeof(string));
-
-
-
-  for(int i = from; i < to; i++){
+  for (int i = from; i < to; i++) {
     A[i] = temp[i - from];
   }
 
-  //radix_sort(A, from, from + cnt[0] - 1, d + 1);
-
-  for(int i = 1; i < BASE; i++){
-    if(cnt[i - 1] - cnt[i])
+  for (int i = 2; i < BASE; i++) {
+    if (cnt[i - 1] - cnt[i])
       radix_sort(A, from + cnt[i - 1], from + cnt[i], d + 1);
   }
-
-
 
   delete[] temp;
   delete[] cnt;
@@ -158,37 +129,66 @@ void radix_sort(string *A, int from, int to, int d) {
 
 
 
+template<class T>
+void radix_sort(Vector<T> &source, int from, int to, int d) {
+
+  if (to - from <= 1)
+    return;
+
+
+  int *counter = new int[BASE];
+
+  for (int j = 0; j < BASE; j++) {
+    counter[j] = 0;
+  }
+
+  for (int i = from; i < to; i++) {
+    int j = source[i][d];
+    counter[j]++;
+  }
+
+  for (int j = 1; j < BASE; j++) {
+    counter[j] += counter[j - 1];
+  }
+
+  string *temp = new string[to - from];
+
+  for (int i = to - 1; i >= from; i--) {
+    int j = source[i][d];
+    temp[--counter[j]] = source[i];
+  }
+
+  for (int i = from; i < to; i++) {
+    source[i] = temp[i - from];
+  }
+
+  delete[] temp;
+
+  for (int i = 2; i < BASE; i++) {
+    if (counter[i - 1] - counter[i])
+      radix_sort(source, from + counter[i - 1], from + counter[i], d + 1);
+  }
+
+  delete[] counter;
+}
+
 int main() {
   int n = 0;
 
-  Vector<string>V;
+  Vector<string> source;
 
-  while(!cin.eof()){
-    string t;
-    cin >> t;
-    V.push_back(t);
+  while (!cin.eof()) {
+    string temp;
+    cin >> temp;
+    source.push_back(temp);
     n++;
   }
 
-  n--;
+  radix_sort(source, 0, n - 1, 0);
 
-  string *arr = new string[n];
-
-  for(int i = 0; i < V.size() - 1; i++){
-    arr[i] = V[i];
+  for (int i = 0; i < n - 1; i++) {
+    cout << source[i] << endl;
   }
-
-  radix_sort(arr, 0, n, 0);
-
-
-  for(int i = 0; i < n; i++){
-    cout << arr[i] << endl;
-
-  }
-
-
-
-  delete[] arr;
 
   return 0;
 }

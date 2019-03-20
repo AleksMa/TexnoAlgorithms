@@ -117,12 +117,14 @@ void radix_sort(string *A, int from, int to, int d) {
     A[i] = temp[i - from];
   }
 
+  delete[] temp;
+
   for (int i = 2; i < BASE; i++) {
     if (cnt[i - 1] - cnt[i])
       radix_sort(A, from + cnt[i - 1], from + cnt[i], d + 1);
   }
 
-  delete[] temp;
+
   delete[] cnt;
 }
 

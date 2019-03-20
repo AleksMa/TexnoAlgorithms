@@ -1,5 +1,28 @@
 #include "bits/stdc++.h"
 
+
+/*
+
+ Даны неотрицательные целые числа n, k и массив целых чисел из диапазона [0..109] размера n.
+Требуется найти k-ю порядковую статистику. т.е. напечатать число, которое бы стояло на позиции с индексом k ∈[0..n-1] в отсортированном массиве.
+Напишите нерекурсивный алгоритм.
+Требования к дополнительной памяти: O(n).
+Требуемое среднее время работы: O(n).
+Функцию Partition следует реализовывать методом прохода двумя итераторами в одном направлении.
+Описание для случая прохода от начала массива к концу:
+Выбирается опорный элемент.
+Опорный элемент меняется с последним элементом массива.
+Во время работы Partition в начале массива содержатся элементы, не бОльшие опорного. Затем располагаются элементы, строго бОльшие опорного. В конце массива лежат нерассмотренные элементы. Последним элементом лежит опорный.
+Итератор (индекс) i указывает на начало группы элементов, строго бОльших опорного.
+Итератор j больше i, итератор j указывает на первый нерассмотренный элемент.
+Шаг алгоритма. Рассматривается элемент, на который указывает j. Если он больше опорного, то сдвигаем j. Если он не больше опорного, то меняем a[i] и a[j] местами, сдвигаем i и сдвигаем j.
+В конце работы алгоритма меняем опорный и элемент, на который указывает итератор i.
+
+6_3. Реализуйте стратегию выбора опорного элемента “случайный элемент”.
+Функцию Partition реализуйте методом прохода двумя итераторами от начала массива к концу.
+
+*/
+
 template<class T>
 class Compare {
  public:
@@ -9,39 +32,25 @@ class Compare {
 };
 
 template<class T, class Compare>
-int Partition(T *a, int n, Compare cmp) {
+int Partition(T *part, int n, Compare cmp) {
   if (n <= 1) {
     return 0;
   }
   int pos_pivot = rand() % n;
-  //std::cout << pos_pivot << std::endl;
-  const T pivot = a[pos_pivot];
-  std::swap(a[pos_pivot], a[n - 1]);
+  const T pivot = part[pos_pivot];
+  std::swap(part[pos_pivot], part[n - 1]);
 
   int i = 0, j;
 
-  for (; i < n - 1 && cmp(a[i], pivot); ++i) {}
+  for (; i < n - 1 && cmp(part[i], pivot); ++i) {}
   j = i + 1;
   while (j < n - 1) {
-    if (cmp(a[j], pivot)) {
-      std::swap(a[i++], a[j]);
+    if (cmp(part[j], pivot)) {
+      std::swap(part[i++], part[j]);
     }
     j++;
   }
-
-  std::swap(a[i], a[n - 1]);
-
-  /*
-  std::cout << "& " << i << " " << n - 1 << std::endl;
-
-  for (int l = 0; l < n; l++) {
-    if (l == i)
-      std::cout << "{" << a[l] << "}" << " ";
-    else
-      std::cout << a[l] << " ";
-  }
-  std::cout << std::endl;
-*/
+  std::swap(part[i], part[n - 1]);
 
   return i;
 
@@ -50,21 +59,21 @@ int Partition(T *a, int n, Compare cmp) {
 template<class T, class Compare>
 T kStatDC(T *source, int n, int k, Compare cmp) {
 
-  int part = -1;
-  while (part != k) {
+  while (1) {
+    int part = Partition(source, n, cmp);
 
-    part = Partition(source, n, cmp);
-
-    if (part > k) {
+    if(part == k){
+      return source[part];
+    }
+    else if (part > k) {
       n = part;
-    } else if (part < k) {
+    } else {
       part++;
       source += part;
       n -= part;
       k -= part;
     }
   }
-  return source[part];
 }
 
 int main() {

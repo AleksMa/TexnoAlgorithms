@@ -45,22 +45,26 @@ int Partition(T *a, int n, Compare cmp) {
 
   return i;
 
-
 }
 
 template<class T, class Compare>
 T kStatDC(T *source, int n, int k, Compare cmp) {
 
-  int part = Partition(source, n, cmp);
+  int part = -1;
+  while (part != k) {
 
-  if (part == k) {
-    return source[part];
-  } else if (part > k) {
-    return kStatDC(source, part, k, cmp);
-  } else {
-    part++;
-    return kStatDC(source + part, n - part, k - part, cmp);
+    part = Partition(source, n, cmp);
+
+    if (part > k) {
+      n = part;
+    } else if (part < k) {
+      part++;
+      source += part;
+      n -= part;
+      k -= part;
+    }
   }
+  return source[part];
 }
 
 int main() {

@@ -134,19 +134,22 @@ void BST<T>::post_dfs(Node<T> *node, void (*func)(Node<T> *node)) {
   Node<T> *peek_node = nullptr, *last_visited_node = nullptr;
   //Post-order
   stack<Node<T> *> S;
-  while (!S.empty() || node != nullptr) {
-    if (node) {
+  while (true) {
+    while (node != nullptr) {
       S.push(node);
       node = node->Left;
-    } else {
-      peek_node = S.top();
-      if (peek_node->Right && last_visited_node != peek_node->Right)
-        node = peek_node->Right;
-      else {
-        S.pop();
-        func(peek_node);
-        last_visited_node = peek_node;
-      }
+    }
+
+    if(S.empty())
+      return;
+
+    peek_node = S.top();
+    if (peek_node->Right != nullptr && last_visited_node != peek_node->Right)
+      node = peek_node->Right;
+    else {
+      S.pop();
+      func(peek_node);
+      last_visited_node = peek_node;
     }
   }
 };

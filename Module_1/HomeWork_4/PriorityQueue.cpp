@@ -294,7 +294,6 @@ int eater(int *source, int n, int K){
 
 
 int main(int argc, char **argv) {
-
   int n = 0, K = 0, temp = 0;
 
   std::cin >> n;

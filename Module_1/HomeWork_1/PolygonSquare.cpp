@@ -6,7 +6,7 @@
  *  Указание. Для вычисления площади n-угольника можно посчитать сумму ориентированных площадей трапеций под каждой стороной многоугольника.
  */
 
-inline double midline(double a, double b) { return (a + b) / 2; }
+double midline(double a, double b) { return (a + b) / 2; }
 
 struct Point {
   double x, y;
@@ -14,10 +14,10 @@ struct Point {
 };
 
 double square(Point *source, int n) {
-  double x, y, xl, yl, x0, y0, S = 0;
+  double x, y, x0, y0, S = 0;
 
-  xl = x0 = source[0].x;                    // (x0, y0) - кординаты первой вершины -
-  yl = y0 = source[0].y;                    // понадобятся для поиска площади под последней стороной
+  double xl = x0 = source[0].x;                    // (x0, y0) - кординаты первой вершины -
+  double yl = y0 = source[0].y;                    // понадобятся для поиска площади под последней стороной
 
   for (int i = 1; i < n; i++) {
     x = source[i].x, y = source[i].y;       // Находим ориентированную площадь под стороной (xl, yl ; x, y), где

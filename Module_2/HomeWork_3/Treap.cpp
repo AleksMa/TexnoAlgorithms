@@ -1,3 +1,17 @@
+/*
+ *
+ * Дано число N < 106 и последовательность пар целых чисел из [-231, 231] длиной N. Построить декартово дерево из N узлов, характеризующихся парами чисел (Xi, Yi).
+ * Каждая пара чисел (Xi, Yi) определяет ключ Xi и приоритет Yi в декартовом дереве.
+ * Добавление узла в декартово дерево выполняйте второй версией алгоритма, рассказанного на лекции:
+ * При добавлении узла (x, y) выполняйте спуск по ключу до узла P с меньшим приоритетом. Затем разбейте найденное поддерево по ключу x так,
+ * чтобы в первом поддереве все ключи меньше x, а во втором больше или равны x.
+ * Получившиеся два дерева сделайте дочерними для нового узла (x, y).
+ * Новый узел вставьте на место узла P. Построить также наивное дерево поиска по ключам Xi. Равные ключи добавляйте в правое поддерево.
+ * Вычислить количество узлов в самом широком слое декартового дерева и количество узлов в самом широком слое наивного дерева поиска. Вывести их разницу.
+ * Разница может быть отрицательна.
+ *
+ */
+
 #include "bits/stdc++.h"
 
 using std::queue;
@@ -334,7 +348,7 @@ class Treap {
   TreapNode<T, P>* merge(TreapNode<T, P> *left, TreapNode<T, P> *right);
 
   TreapNode<T, P> *find(TreapNode<T, P> *node, T value);
-  void deleteNode(TreapNode<T, P> *&node);
+  //void deleteNode(TreapNode<T, P> *&node);
 };
 
 template<class T, class P>
@@ -472,61 +486,32 @@ const T &Treap<T, P>::FindMinimum() const {
 template<class T, class P>
 void Treap<T, P>::Insert(T value, P priority) {
 
-  TreapNode<T, P> *currentNode = root;
-  while(currentNode != nullptr && currentNode->Priority >= priority){
-    currentNode = (currentNode->Data > value ? currentNode->Left : currentNode->Right );
+  TreapNode<T, P> **currentNode = &root;
+  while(*currentNode != nullptr && (*currentNode)->Priority >= priority){
+    currentNode = ((*currentNode)->Data > value ? &(*currentNode)->Left : &(*currentNode)->Right );
   }
   TreapNode<T, P> *T1 = nullptr, *T2 = nullptr;
   TreapNode<T, P> *newT = new TreapNode<T, P>(value, priority);
-  split(root, value, T1, T2);
+  split(*currentNode, value, T1, T2);
   TreapNode<T, P> *M = merge(T1, newT);
-  root = merge(M, T2);
+  *currentNode = merge(M, T2);
 };
 
 template<class T, class P>
 bool Treap<T, P>::Delete(T value) {
-  TreapNode<T, P> **node = &root;
 
-  while (true) {
-    if (*node == nullptr)
-      return false;
-    if ((*node)->Data == value) {
-      deleteNode(*node);
-      return true;
-    }
-    if ((*node)->Data > value)
-      node = &(*node)->Left;
-    else
-      node = &(*node)->Right;
+  TreapNode<T, P> **currentNode = &root;
+  while(*currentNode != nullptr && (*currentNode)->Data != value){
+    currentNode = ((*currentNode)->Data > value ? &(*currentNode)->Left : &(*currentNode)->Right );
   }
+  if(*currentNode == nullptr)
+    return false;
+  TreapNode<T, P> *T1 = (*currentNode)->Left, *T2 = (*currentNode)->Right;
+  TreapNode<T, P> *M = merge(T1, T2);
+  delete currentNode;
+  *currentNode = M;
+  return true;
 };
-
-template<class T, class P>
-void Treap<T, P>::deleteNode(TreapNode<T, P> *&node) {
-  if (node->Left == 0) {
-    TreapNode<T, P> *right = node->Right;
-    delete node;
-    node = right;
-  } else if (node->Right == 0) {
-    TreapNode<T, P> *left = node->Left;
-    delete node;
-    node = left;
-  } else {
-    TreapNode<T, P> *minParent = node;
-    TreapNode<T, P> *min = node->Right;
-    while (min->Left != 0) {
-      minParent = min;
-      min = min->Left;
-    }
-    node->Data = min->Data;
-    if (minParent->Left == min)
-      minParent->Left = min->Right;
-    else
-      minParent->Right = min->Right;
-
-    delete min;
-  }
-}
 
 template<class T, class P>
 void Treap<T, P>::split(TreapNode<T, P> *currentNode, T key, TreapNode<T, P> *&left,
@@ -546,8 +531,8 @@ void Treap<T, P>::split(TreapNode<T, P> *currentNode, T key, TreapNode<T, P> *&l
 template<class T, class P>
 TreapNode<T, P>* Treap<T, P>::merge(TreapNode<T, P> *left, TreapNode<T, P> *right)
 {
-  if( left == 0 || right == 0 ) {
-    return left == 0 ? right : left;
+  if( left == nullptr || right == nullptr ) {
+    return left == nullptr ? right : left;
   }
   if( left->Priority > right->Priority ) {
     left->Right = merge(left->Right, right);
@@ -570,17 +555,19 @@ int main() {
     treap.Insert(a, b);
   }
 
-  tree.BFS(output);
-
   int wBST = tree.max_width(), wTreap = treap.max_width();
+
+  cout << wTreap - wBST;
+
+  /*
+  tree.BFS(output);
 
   cout << std::endl << "///" << wBST << std::endl;
 
   treap.BFS(output);
 
   cout << std::endl << "///" <<  wTreap << std::endl;
-
-  cout << wTreap - wBST;
+   */
 
   return 0;
 }

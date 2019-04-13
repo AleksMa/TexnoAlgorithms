@@ -1,9 +1,19 @@
+/*
+ * Дано число N < 106 и последовательность целых чисел из [-231..231] длиной N.
+Требуется построить бинарное дерево поиска, заданное наивным порядком вставки.
+ Т.е., при добавлении очередного числа K в дерево с корнем root, если root→Key ≤ K, то узел K добавляется в правое поддерево root; иначе в левое поддерево root.
+Выведите элементы в порядке level-order (по слоям, “в ширину”).
+ */
+
 #include "bits/stdc++.h"
 
 using std::queue;
 using std::stack;
 using std::cin;
 using std::cout;
+
+
+
 
 template<class T>
 struct Node {
@@ -21,10 +31,8 @@ class BST {
   BST();
   ~BST();
 
-  void DFS(void (*func)(Node<T> *));
-  void preDFS(void (*func)(Node<T> *));
-  void postDFS(void (*func)(Node<T> *));
-  void BFS(void (*func)(Node<T> *));
+
+  void write() { BFS(output); };
 
   bool Find(T value) const;
   void Insert(T value);
@@ -34,10 +42,19 @@ class BST {
  private:
   Node<T> *root;
 
+
+  void DFS(void (*func)(Node<T> *));
+  void preDFS(void (*func)(Node<T> *));
+  void postDFS(void (*func)(Node<T> *));
+  void BFS(void (*func)(Node<T> *));
+
   void dfs(Node<T> *node, void (*func)(Node<T> *));
   void pre_dfs(Node<T> *node, void (*func)(Node<T> *));
   void post_dfs(Node<T> *node, void (*func)(Node<T> *));
   void bfs(Node<T> *root, void (*func)(Node<T> *));
+
+  static void output(Node<T> *node) { cout << node->Data << " "; }
+  static void gcn(Node<T> *node) { delete node; }
 
   //void gc(Node<T> *node);
 
@@ -49,16 +66,6 @@ class BST {
 
 template<class T>
 BST<T>::BST(): root(nullptr) {};
-
-template<class T>
-void gcn(Node<T> *node) {
-  delete node;
-}
-
-template<class T>
-void output(Node<T> *node) {
-  cout << node->Data << " ";
-}
 
 template<class T>
 BST<T>::~BST() {
@@ -273,7 +280,7 @@ int main() {
     tree.Insert(a);
   }
 
-  tree.postDFS(output);
+  tree.write();
 
   return 0;
 }

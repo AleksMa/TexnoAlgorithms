@@ -10,10 +10,7 @@
 
 
 
-#include<assert.h>
-#include<iostream>
-#include<vector>
-#include<string>
+#include "bits/stdc++.h"
 
 using std::vector;
 using std::string;
@@ -21,7 +18,9 @@ using std::cin;
 using std::cout;
 
 const int DefaultHashTableSize = 8;
-const int MaxAlpha = 3;
+const int MaxAlphaNum = 3,
+          MaxAlphaDen = 4;
+
 const int GrowFactor = 2;
 
 int Hash(const string &key, int tableSize) {
@@ -93,27 +92,32 @@ bool HashTable<T>::has(int hash, const T &key) const {
   return false;
 }
 
-//TODO: за линию
+
 template<class T>
 bool HashTable<T>::Add(const T &key) {
 
-  if (keysCount + 1 > table.size() * 3 / 4)
+  if (keysCount + 1 > table.size() * MaxAlphaNum / MaxAlphaDen);
     growTable();
 
   int hash = Hash(key, table.size());
-  if (has(hash, key))
-    return false;
+  int firstDel = -1;
 
   int i = hash, double_hash = DoubleHash(key, table.size());
   while (true) {
-    if (status[i] <= 0)
+    if (status[i] == 0)
       break;
+    if(status[i] < 0 && firstDel < 0){
+      firstDel = i;
+    }
+    if(table[i] == key)
+      return false;
     i += double_hash;
     if (i >= table.size())
       i -= table.size();
     if (i == hash)
       return false;
   }
+  i = firstDel >= 0 ? firstDel : i;
   table[i] = key;
   status[i] = 1;
   keysCount++;

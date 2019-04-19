@@ -127,7 +127,8 @@ typename AVL<T>::Node *AVL<T>::insert(T v) {
 
 template<typename T>
 typename AVL<T>::Node *AVL<T>::insert(Node *&p, T v) {
-  if (!p) return new Node(v);
+  if (!p)
+    p = new Node(v);
   if (v < p->Data)
     p->Left = insert(p->Left, v);
   else

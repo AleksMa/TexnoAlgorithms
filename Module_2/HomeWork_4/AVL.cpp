@@ -18,20 +18,33 @@ class AVL {
 
   bool Delete(T value);
 
-
  private:
 
   struct Node {
     Node() : Left(nullptr), Right(nullptr) {}
-    Node(const T &data) : Data(data), Left(nullptr), Right(nullptr), height(0) {}
+    Node(const T &data) : Data(data), Left(nullptr), Right(nullptr), height(1) {}
 
     unsigned char height;
     T Data;
     Node *Left;
     Node *Right;
+
+    void updateHeight() {
+      int lHeight = 0;
+      int rHeight = 0;
+      if (Left != nullptr) {
+        lHeight = Left->height;
+      }
+      if (Right != nullptr) {
+        rHeight = Right->height;
+      }
+      int max = (lHeight > rHeight) ? lHeight : rHeight;
+      height = max + 1;
+    }
+
   };
 
-  Node *insert(Node *p, T v);
+  Node *insert(Node *&p, T v);
 
   void DFS(void (*func)(Node *));
   void BFS(void (*func)(Node *));
@@ -39,9 +52,9 @@ class AVL {
   void dfs(Node *node, void (*func)(Node *));
   void bfs(Node *root, void (*func)(Node *));
 
-  Node *rotateLeft(Node *p);
-  Node *rotateRight(Node *p);
-  Node *balance(Node *p);
+  Node *rotateLeft(Node *&p);
+  Node *rotateRight(Node *&p);
+  Node *balance(Node *&p);
 
   bool delete_(Node *&p, T value);
   void deleteNode(Node *&p);
@@ -52,7 +65,7 @@ class AVL {
   unsigned char height(Node *p) { return p ? p->height : 0; }
   int bfactor(Node *p) { return height(p->Right) - height(p->Left); }
 
-  void fixheight(Node *p) {
+  void fixheight(Node *&p) {
     unsigned char hl = height(p->Left);
     unsigned char hr = height(p->Right);
     p->height = max(hl, hr) + 1;
@@ -130,18 +143,23 @@ bool AVL<T>::insert(T v) {
 }
 
 template<typename T>
-typename AVL<T>::Node *AVL<T>::insert(Node *p, T v) {
-  if (!p) return new Node(v);
-  if (v < p->Data)
-    p->Left = insert(p->Left, v);
-  else
-    p->Right = insert(p->Right, v);
-  return balance(p);
+typename AVL<T>::Node *AVL<T>::insert(Node *&p, T v) {
+  if (!p) {
+    p = new Node(v);
+  } else {
+    if (v < p->Data) {
+      insert(p->Left, v);
+    } else {
+      insert(p->Right, v);
+    }
+  }
+  p = balance(p);
+  return p;
 }
 
 template<typename T>
-typename AVL<T>::Node *AVL<T>::rotateLeft(Node *q) {
-  Node* p = q->Right;
+typename AVL<T>::Node *AVL<T>::rotateLeft(Node *&q) {
+  Node *p = q->Right;
   q->Right = p->Left;
   p->Left = q;
   fixheight(q);
@@ -150,19 +168,17 @@ typename AVL<T>::Node *AVL<T>::rotateLeft(Node *q) {
 }
 
 template<typename T>
-typename AVL<T>::Node *AVL<T>::rotateRight(Node *p) {
+typename AVL<T>::Node *AVL<T>::rotateRight(Node *&p) {
   Node *q = p->Left;
   p->Left = q->Right;
   q->Right = p;
-  fixheight(p);
   fixheight(q);
+  fixheight(p);
   return q;
 }
 
 template<typename T>
-typename AVL<T>::Node *AVL<T>::balance(Node *p) {
-  if(!p)
-    return nullptr;
+typename AVL<T>::Node *AVL<T>::balance(Node *&p) {
   fixheight(p);
   if (bfactor(p) == 2) {
     if (bfactor(p->Right) < 0)
@@ -192,20 +208,20 @@ bool AVL<T>::delete_(Node *&p, T value) {
   //bool fl = del_node == nullptr || (del_node->Data == value && del_node->Right == nullptr && del_node->Left == nullptr);
   bool t = delete_(del_node, value);
   //if(!fl && t)
-    balance(del_node);
+  balance(del_node);
   return t;
 };
 
 template<class T>
 void AVL<T>::deleteNode(Node *&node) {
   if (node->Left == 0) {
-    Node *right = node->Right;
+    Node *Right = node->Right;
     delete node;
-    node = right;
+    node = Right;
   } else if (node->Right == 0) {
-    Node *left = node->Left;
+    Node *Left = node->Left;
     delete node;
-    node = left;
+    node = Left;
   } else {
     Node *minParent = node;
     Node *min = node->Right;

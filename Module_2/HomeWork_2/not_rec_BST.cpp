@@ -56,11 +56,11 @@ class BST {
   static void output(Node<T> *node) { cout << node->Data << " "; }
   static void gcn(Node<T> *node) { delete node; }
 
-  //void gc(Node<T> *node);
+  //void gc(root<T> *node);
 
   Node<T> *find(Node<T> *node, T value);
-  //void insert(Node<T> const *&node, T value);
-  //bool delete_(Node<T> *&node, T value);
+  //void insert(root<T> const *&node, T value);
+  //bool delete_(root<T> *&node, T value);
   void deleteNode(Node<T> *&node);
 };
 

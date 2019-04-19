@@ -140,13 +140,13 @@ typename AVL<T>::Node *AVL<T>::insert(Node *p, T v) {
 }
 
 template<typename T>
-typename AVL<T>::Node *AVL<T>::rotateLeft(Node *p) {
-  Node *q = p->Left;
-  p->Left = q->Right;
-  q->Right = p;
-  fixheight(p);
+typename AVL<T>::Node *AVL<T>::rotateLeft(Node *q) {
+  Node* p = q->Right;
+  q->Right = p->Left;
+  p->Left = q;
   fixheight(q);
-  return q;
+  fixheight(p);
+  return p;
 }
 
 template<typename T>

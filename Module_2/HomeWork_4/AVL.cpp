@@ -154,6 +154,7 @@ typename AVL<T>::Node *AVL<T>::insert(Node *&p, T v) {
     }
   }
   p = balance(p);
+  fixheight(p);
   return p;
 }
 
@@ -179,6 +180,8 @@ typename AVL<T>::Node *AVL<T>::rotateRight(Node *&p) {
 
 template<typename T>
 typename AVL<T>::Node *AVL<T>::balance(Node *&p) {
+  //if (p == nullptr)
+  //  return nullptr;
   fixheight(p);
   if (bfactor(p) == 2) {
     if (bfactor(p->Right) < 0)
@@ -207,8 +210,8 @@ bool AVL<T>::delete_(Node *&p, T value) {
   Node *&del_node = (p->Data > value ? p->Left : p->Right);
   //bool fl = del_node == nullptr || (del_node->Data == value && del_node->Right == nullptr && del_node->Left == nullptr);
   bool t = delete_(del_node, value);
-  //if(!fl && t)
-  balance(del_node);
+  //if (!fl && t)
+  balance(p);
   return t;
 };
 
@@ -244,6 +247,14 @@ int main() {
     cin >> a;
     tree.insert(a);
   }
+
+  //tree.Delete(9);
+
+  tree.Delete(6);
+  tree.Delete(7);
+  tree.Delete(1);
+  //tree.Delete(10);
+  tree.Delete(9);
 
   tree.write();
 

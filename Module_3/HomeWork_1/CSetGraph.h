@@ -17,8 +17,8 @@ class CSetGraph : public IGraph {
 
  private:
   size_t count;
-  std::vector<std::unordered_set<int>> in;
-  std::vector<std::unordered_set<int>> out;
+  std::vector<std::unordered_multiset<int>> in;
+  std::vector<std::unordered_multiset<int>> out;
 
 };
 
